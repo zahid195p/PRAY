@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Salah">
+<title>Salah</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0d1b2a;--s:#172535;--s2:#1e3248;
+  --a:#c9a84c;--a2:rgba(201,168,76,.12);--a3:rgba(201,168,76,.28);
+  --t:#e8e0d0;--d:#7a8898;--m:#3a4858;
+  --g:#4caf8a;--g2:rgba(76,175,138,.12);--g3:rgba(76,175,138,.28);
+  --or:#d4732a;--or2:rgba(212,115,42,.1);--or3:rgba(212,115,42,.3);
+  --b:rgba(255,255,255,.07);--sh:0 8px 32px rgba(0,0,0,.32);
+  --tr:.32s cubic-bezier(.4,0,.2,1);--re:rgba(255,255,255,.06);
+}
+[data-theme=warm]{
+  --bg:#faf5ee;--s:#fff9f2;--s2:#fdecd8;
+  --a:#bf5f1a;--a2:rgba(191,95,26,.09);--a3:rgba(191,95,26,.22);
+  --t:#231409;--d:#8a6a50;--m:#c4a080;
+  --g:#3d7a4f;--g2:rgba(61,122,79,.09);--g3:rgba(61,122,79,.22);
+  --or:#b85010;--or2:rgba(184,80,16,.08);--or3:rgba(184,80,16,.22);
+  --b:rgba(0,0,0,.07);--sh:0 8px 32px rgba(191,95,26,.08);--re:rgba(0,0,0,.06);
+}
+
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;transition:background var(--tr),color var(--tr);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#app{max-width:430px;margin:0 auto}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;top:-70px;left:50%;transform:translateX(-50%);
+  max-width:370px;width:calc(100% - 32px);
+  background:var(--s2);border:1px solid var(--b);color:var(--t);
+  font-size:13px;font-weight:500;padding:12px 18px;border-radius:14px;
+  box-shadow:0 8px 28px rgba(0,0,0,.35);z-index:400;text-align:center;
+  transition:top .38s cubic-bezier(.4,0,.2,1);pointer-events:none;
+}
+#toast.show{top:calc(env(safe-area-inset-top,0px) + 12px)}
+#toast.gold{border-color:var(--a3)}
+#toast.green{border-color:var(--g3)}
+
+/* ── OFFLINE ── */
+#ob{background:var(--or2);border-bottom:1px solid var(--or3);color:var(--or);font-size:12px;text-align:center;padding:7px;display:none}
+#ob.show{display:block}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px)+16px) 22px 0}
+.loc{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--a)}
+.hij{font-size:12px;color:var(--d);margin-top:2px}
+.tog{width:48px;height:28px;border-radius:14px;background:var(--s2);border:1.5px solid var(--b);position:relative;cursor:pointer;flex-shrink:0;transition:background var(--tr)}
+.tog::after{content:'';position:absolute;left:4px;top:4px;width:18px;height:18px;border-radius:50%;background:var(--a);box-shadow:0 1px 4px rgba(0,0,0,.22);transition:transform var(--tr)}
+[data-theme=warm] .tog::after{transform:translateX(20px)}
+
+/* ── STREAK ── */
+#streak-bar{display:none;align-items:center;gap:6px;padding:8px 22px 0;font-size:12px;color:var(--d)}
+#streak-bar.show{display:flex}
+.s-num{color:var(--a);font-weight:600}
+
+/* ── NAV ── */
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--s);border-top:1px solid var(--b);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px);transition:background var(--tr);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.nbtn{flex:1;padding:12px 0 14px;background:none;border:none;font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;color:var(--d);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color var(--tr);position:relative}
+.nbtn.active{color:var(--a)}
+.nbtn.active::after{content:'';position:absolute;top:0;left:22%;right:22%;height:2px;background:var(--a);border-radius:0 0 2px 2px}
+.nbtn-icon{font-size:18px}
+.tab{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
+
+/* ── HERO ── */
+.hero{display:flex;flex-direction:column;align-items:center;padding:24px 20px 16px;gap:18px}
+.ring-w{position:relative;width:190px;height:190px}
+.ring-svg{width:190px;height:190px;transform:rotate(-90deg)}
+.rtrk{fill:none;stroke:var(--re);stroke-width:7;transition:stroke var(--tr)}
+.rfg{fill:none;stroke:var(--a);stroke-width:7;stroke-linecap:round;stroke-dasharray:526.6;stroke-dashoffset:526.6;transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1),stroke var(--tr)}
+.rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;padding:22px}
+.rl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--d)}
+.rn{font-family:'Cinzel',serif;font-size:26px;font-weight:600;line-height:1;color:var(--t);margin-top:1px}
+.rt{font-size:14px;font-weight:500;color:var(--a);margin-top:2px}
+.cdb{text-align:center}
+.cdl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--d)}
+.cdv{font-size:38px;font-weight:300;letter-spacing:-.02em;color:var(--t);margin-top:2px;font-variant-numeric:tabular-nums}
+.cdn{font-size:13px;color:var(--d);margin-top:4px}
+
+/* ── FRIDAY ── */
+.fri{margin:0 16px 12px;background:var(--g2);border:1px solid var(--g3);border-radius:14px;padding:12px 16px;display:none}
+.fri.show{display:block}
+.fh{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--g)}
+.fs{font-size:12px;color:var(--g);opacity:.75;margin-top:3px}
+
+/* ── ALL DONE ── */
+#all-done{margin:0 16px 12px;padding:14px 17px;background:var(--g2);border:1px solid var(--g3);border-radius:14px;display:none;text-align:center}
+#all-done.show{display:block}
+.ad-title{font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:var(--g)}
+.ad-sub{font-size:12px;color:var(--g);opacity:.75;margin-top:3px}
+
+/* ── QUOTE ── */
+.qt{margin:0 16px 14px;background:var(--a2);border:1px solid var(--a3);border-radius:14px;padding:14px 17px}
+.qt i{font-size:13px;line-height:1.65;color:var(--t);display:block;font-style:italic}
+.qt small{font-size:11px;color:var(--a);font-weight:600;letter-spacing:.04em;display:block;margin-top:6px}
+
+/* ── SECTION ROW ── */
+.sec-row{display:flex;align-items:center;justify-content:space-between;padding:2px 22px 10px}
+.sec{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--m);font-weight:500}
+.p-sum{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--a2);color:var(--a);border:1px solid var(--a3)}
+.p-sum.done{background:var(--g2);color:var(--g);border-color:var(--g3)}
+
+/* ── PRAYER CARDS ── */
+.cards{display:flex;flex-direction:column;gap:8px;padding:0 16px}
+
+/* Card is now column-direction */
+.card{
+  background:var(--s);border:1px solid var(--b);border-radius:17px;
+  padding:14px 16px 12px;
+  display:flex;flex-direction:column;gap:10px;
+  transition:all var(--tr);position:relative;overflow:hidden;
+}
+.card::before{content:'';position:absolute;left:0;top:12%;bottom:12%;width:3px;border-radius:0 2px 2px 0;background:transparent;transition:background var(--tr)}
+.card.active{background:var(--s2);border-color:var(--a3);box-shadow:var(--sh)}
+.card.active::before{background:var(--a)}
+.card.passed:not(.prayed){opacity:.44}
+.card.prayed::before{background:var(--g)!important}
+.card.prayed{border-color:var(--g3)!important}
+.card.missed-card::before{background:var(--or)!important}
+
+/* Top row inside card: icon + info + tick */
+.card-row{display:flex;align-items:center;gap:13px}
+.ico{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:background var(--tr)}
+.card[data-p=fajr]    .ico{background:rgba(61,90,138,.22)}
+.card[data-p=dhuhr]   .ico{background:rgba(201,168,76,.2)}
+.card[data-p=asr]     .ico{background:rgba(212,115,42,.2)}
+.card[data-p=maghrib] .ico{background:rgba(138,61,90,.22)}
+.card[data-p=isha]    .ico{background:rgba(74,61,122,.22)}
+[data-theme=warm] .card[data-p=fajr]    .ico{background:rgba(61,90,138,.1)}
+[data-theme=warm] .card[data-p=dhuhr]   .ico{background:rgba(201,168,76,.12)}
+[data-theme=warm] .card[data-p=asr]     .ico{background:rgba(212,115,42,.1)}
+[data-theme=warm] .card[data-p=maghrib] .ico{background:rgba(138,61,90,.1)}
+[data-theme=warm] .card[data-p=isha]    .ico{background:rgba(74,61,122,.1)}
+
+.inf{flex:1;min-width:0}
+.pn{font-family:'Cinzel',serif;font-size:16px;font-weight:600;color:var(--t)}
+.pt{font-size:14px;color:var(--a);font-weight:500;margin-top:1px}
+.pk{font-size:11px;color:var(--m);margin-top:2px}
+.ps{font-size:11px;color:var(--d);margin-top:4px;line-height:1.4}
+.pr{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
+
+/* Badges */
+.bdg{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.b-up{background:var(--re);color:var(--d);border:1px solid var(--b)}
+
+/* Tick buttons */
+.tick{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all var(--tr);flex-shrink:0;background:transparent;-webkit-tap-highlight-color:transparent;border:2px solid transparent}
+.tick-idle {border-color:var(--b);color:transparent;pointer-events:none}
+.tick-ready{border-color:var(--a);color:var(--a);animation:pulsar 2.4s ease-in-out infinite}
+.tick-late {border-color:var(--or3);color:var(--or)}
+.tick-done {border-color:var(--g);background:var(--g2);color:var(--g);pointer-events:none}
+@keyframes pulsar{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.5)}50%{box-shadow:0 0 0 7px rgba(201,168,76,0)}}
+.miss-lbl{font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:var(--or);font-weight:600}
+.undo-btn{font-size:10px;color:var(--d);background:none;border:none;font-family:'Outfit',sans-serif;cursor:pointer;padding:2px 0;text-decoration:underline;-webkit-tap-highlight-color:transparent;transition:color var(--tr)}
+.undo-btn:active{color:var(--t)}
+
+/* ══════════════════════════════════════════
+   PRAYER TIME ZONE BAR
+══════════════════════════════════════════ */
+.wbar{width:100%}
+
+.wbar-track{
+  height:7px;border-radius:4px;
+  position:relative;display:flex;overflow:visible;
+  background:var(--re);
+}
+/* Zone segments (colored fills inside track) */
+.wzone{height:100%;transition:width .4s ease}
+.wz-best{background:var(--g);border-radius:4px 0 0 4px}
+.wz-ok  {background:var(--a)}
+.wz-late{background:var(--or);border-radius:0 4px 4px 0}
+/* Only one zone: full rounded */
+.wz-best:last-child{border-radius:4px}
+/* Two zones: middle has no rounding */
+.wz-ok:last-child{border-radius:0 4px 4px 0}
+
+/* Live marker */
+.wmarker{
+  position:absolute;top:-4px;bottom:-4px;
+  width:2.5px;border-radius:2px;
+  background:#fff;box-shadow:0 0 5px rgba(0,0,0,.45);
+  display:none;pointer-events:none;
+  /* no transition — moves every second, needs to feel live */
+}
+[data-theme=warm] .wmarker{background:var(--t)}
+
+/* Zone label row below bar */
+.wbar-labels{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:5px;font-size:10px;
+}
+.wbl-start{color:var(--d)}
+.wbl-status{font-weight:600;color:var(--a);transition:color var(--tr)}
+.wbl-status.ending{color:var(--or)}
+.wbl-status.done{color:var(--m)}
+.wbl-end{color:var(--d)}
+
+/* Zone legend (tiny dots + labels under bar) */
+.wbar-legend{
+  display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;
+}
+.wleg{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--m);letter-spacing:.04em;text-transform:uppercase}
+.wleg-dot{width:6px;height:6px;border-radius:50%}
+.wleg-dot.g{background:var(--g)}
+.wleg-dot.a{background:var(--a)}
+.wleg-dot.o{background:var(--or)}
+
+/* ── PRAYER GAP SEPARATOR ── */
+.prayer-gap{
+  display:flex;align-items:center;gap:10px;padding:2px 20px;
+}
+.gap-line{flex:1;height:1px;background:var(--b)}
+.gap-label{font-size:9.5px;color:var(--m);letter-spacing:.04em;text-transform:uppercase;text-align:center;flex-shrink:0;line-height:1.4}
+
+/* ── LOADING ── */
+#ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;gap:14px;color:var(--d);font-size:14px;padding:0 28px;text-align:center}
+.sp{width:34px;height:34px;border:2.5px solid var(--b);border-top-color:var(--a);border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── QADHA TAB ── */
+.qhdr{padding:22px 22px 6px}
+.qtitle{font-family:'Cinzel',serif;font-size:22px;font-weight:600;color:var(--t)}
+.qsub{font-size:12px;color:var(--d);margin-top:4px}
+.qtotal{margin:14px 16px 0;padding:16px 18px;background:var(--a2);border:1px solid var(--a3);border-radius:16px;display:flex;justify-content:space-between;align-items:flex-end}
+.q-total-num{font-size:28px;font-weight:300;color:var(--t);line-height:1;font-variant-numeric:tabular-nums}
+.q-total-lbl{font-size:11px;color:var(--d);letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.q-rec{font-size:14px;color:var(--g);font-weight:500}
+.q-pace{margin:10px 16px 0;padding:12px 16px;background:var(--g2);border:1px solid var(--g3);border-radius:12px;font-size:12px;color:var(--g);line-height:1.6;text-align:center;display:none}
+.q-pace.show{display:block}
+.q-milestones{padding:14px 16px 0;display:flex;gap:8px;flex-wrap:wrap}
+.q-mbadge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--re);color:var(--m);border:1px solid var(--b)}
+.q-mbadge.unlocked{background:var(--g2);color:var(--g);border-color:var(--g3)}
+.qrows{padding:14px 16px 0;display:flex;flex-direction:column;gap:10px}
+.qr{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:14px 16px}
+.qr-top{display:flex;align-items:center;justify-content:space-between}
+.qr-left{display:flex;align-items:center;gap:10px}
+.qr-icon{font-size:20px}
+.qr-pname{font-family:'Cinzel',serif;font-size:15px;font-weight:600;color:var(--t)}
+.qr-count{font-size:22px;font-weight:300;color:var(--t);font-variant-numeric:tabular-nums}
+.qr-bar{height:4px;background:var(--re);border-radius:2px;overflow:hidden;margin-top:11px}
+.qr-fill{height:100%;background:var(--g);border-radius:2px;transition:width .7s ease}
+.qr-meta{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--m)}
+.q-note{margin:14px 16px 16px;padding:13px 16px;background:var(--re);border-radius:12px;font-size:12px;color:var(--d);line-height:1.6;text-align:center}
+
+/* ── SETTINGS TAB ── */
+.shdr{padding:22px 22px 6px}
+.stitle{font-family:'Cinzel',serif;font-size:22px;font-weight:600;color:var(--t)}
+.scard{background:var(--s);border:1px solid var(--b);border-radius:16px;margin:14px 16px 0;overflow:hidden}
+.scard-hd{padding:13px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--m);font-weight:500;border-bottom:1px solid var(--b)}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--b);transition:background var(--tr);-webkit-tap-highlight-color:transparent}
+.srow:last-child{border-bottom:none}
+.srow.no-tap{cursor:default;pointer-events:none}
+.srow-left{display:flex;align-items:center;gap:12px}
+.srow-icon{font-size:18px;width:22px;text-align:center}
+.srow-label{font-size:14px;color:var(--t);font-weight:500}
+.srow-sub{font-size:11px;color:var(--d);margin-top:2px}
+.city-grid{display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px 16px}
+.city-chip{padding:7px 14px;border-radius:22px;background:var(--re);border:1.5px solid var(--b);font-size:13px;color:var(--d);font-weight:500;cursor:pointer;transition:all var(--tr);-webkit-tap-highlight-color:transparent}
+.city-chip:active{opacity:.7}
+.city-chip.sel{background:var(--a2);border-color:var(--a3);color:var(--a)}
+.theme-pills{display:flex;gap:10px;padding:14px 16px 16px}
+.tp{flex:1;padding:11px;border-radius:12px;border:1.5px solid var(--b);background:var(--re);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;color:var(--d);cursor:pointer;text-align:center;transition:all var(--tr);-webkit-tap-highlight-color:transparent}
+.tp.sel{background:var(--a2);border-color:var(--a3);color:var(--a)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--b)}
+.stat-cell{background:var(--s);padding:14px 16px}
+.stat-num{font-size:24px;font-weight:300;color:var(--t);font-variant-numeric:tabular-nums}
+.stat-lbl{font-size:11px;color:var(--d);margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
+.s-foot{height:16px}
+
+/* ── DHIKR MODAL ── */
+#dov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:flex-end;justify-content:center}
+#dov.show{display:flex}
+#dmod{width:100%;max-width:430px;background:var(--s);border-radius:24px 24px 0 0;padding:20px 22px calc(env(safe-area-inset-bottom,0px)+22px);transform:translateY(100%);transition:transform .36s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto}
+#dov.show #dmod{transform:translateY(0)}
+.dhandle{width:36px;height:4px;background:var(--b);border-radius:2px;margin:0 auto 18px}
+.d-pname{font-family:'Cinzel',serif;font-size:22px;font-weight:600;color:var(--t);text-align:center}
+.d-msg{font-size:13px;color:var(--d);text-align:center;margin-top:4px;line-height:1.5}
+.d-timing{font-size:13px;color:var(--a);font-weight:500;text-align:center;margin-top:6px;min-height:18px}
+.qtog{margin-top:18px;padding:13px 16px;background:var(--s2);border:1px solid var(--b);border-radius:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all var(--tr);-webkit-tap-highlight-color:transparent}
+.qtog.on{background:var(--g2);border-color:var(--g3)}
+.qt-lbl2{font-size:13px;color:var(--t);font-weight:500}
+.qt-sub2{font-size:11px;color:var(--d);margin-top:2px}
+.qchk{width:26px;height:26px;border-radius:50%;border:2px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;flex-shrink:0;transition:all var(--tr)}
+.qtog.on .qchk{background:var(--g);border-color:var(--g);color:#fff}
+.dsec{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--m);font-weight:500;margin:22px 0 10px}
+.drow{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--b);cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:opacity .1s}
+.drow:last-of-type{border-bottom:none}
+.drow:active{opacity:.65}
+.d-arabic{font-size:19px;color:var(--t);font-weight:500}
+.d-trans{font-size:11px;color:var(--d);margin-top:2px}
+.dctr{display:flex;align-items:baseline;gap:5px;flex-shrink:0}
+.dnum{font-size:30px;font-weight:300;color:var(--a);font-variant-numeric:tabular-nums;min-width:42px;text-align:right;transition:color var(--tr)}
+.dnum.done{color:var(--g)}
+.dtgt{font-size:12px;color:var(--m)}
+.dbtn{width:100%;padding:14px;background:var(--a);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;margin-top:20px;transition:opacity .15s}
+.dbtn:active{opacity:.82}
+
+/* ── ANIMATIONS ── */
+@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.hero{animation:fu .5s ease .06s both}
+.fri,#all-done{animation:fu .4s ease .02s both}
+.qt{animation:fu .5s ease .12s both}
+.sec-row{animation:fu .4s ease .16s both}
+.card{animation:fu .45s ease both}
+.card:nth-child(1){animation-delay:.08s}
+.card:nth-child(2){animation-delay:.14s}
+.card:nth-child(3){animation-delay:.20s}
+.card:nth-child(4){animation-delay:.26s}
+.card:nth-child(5){animation-delay:.32s}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="toast"></div>
+  <div id="ld"><div class="sp"></div><span>Fetching prayer times…</span></div>
+
+  <div id="mn" style="display:none">
+    <div id="ob">⚠ Offline — showing cached times</div>
+
+    <header>
+      <div>
+        <div class="loc" id="loc">Pukou, Nanjing</div>
+        <div class="hij" id="hij">—</div>
+      </div>
+      <div class="tog" id="tog"></div>
+    </header>
+
+    <div id="streak-bar">
+      <span>🔥</span>
+      <span class="s-num" id="streak-num">0</span>
+      <span id="streak-txt">day streak</span>
+    </div>
+
+    <!-- TODAY TAB -->
+    <div id="tab-today" class="tab">
+      <div class="hero">
+        <div class="ring-w">
+          <svg class="ring-svg" viewBox="0 0 190 190">
+            <circle class="rtrk" cx="95" cy="95" r="83.8"/>
+            <circle class="rfg"  cx="95" cy="95" r="83.8" id="rfg"/>
+          </svg>
+          <div class="rc">
+            <div class="rl" id="rl">—</div>
+            <div class="rn" id="rn">—</div>
+            <div class="rt" id="rt">—</div>
+          </div>
+        </div>
+        <div class="cdb">
+          <div class="cdl" id="cdl">Next prayer in</div>
+          <div class="cdv" id="cdv">--:--:--</div>
+          <div class="cdn" id="cdn"></div>
+        </div>
+      </div>
+
+      <div class="fri" id="fri">
+        <div class="fh">Jumu'ah Mubarak ✦</div>
+        <div class="fs">Read Surah Al-Kahf · Send Ṣalawāt on the Prophet ﷺ abundantly</div>
+      </div>
+
+      <div id="all-done">
+        <div class="ad-title">🌟 All 5 prayers complete</div>
+        <div class="ad-sub">Alhamdulillah — may Allah accept every one</div>
+      </div>
+
+      <div class="qt"><i id="qt-text"></i><small id="qt-src"></small></div>
+
+      <div class="sec-row">
+        <span class="sec">Today's Prayers</span>
+        <span class="p-sum" id="p-sum">0 / 5</span>
+      </div>
+      <div class="cards" id="cards"></div>
+    </div>
+
+    <!-- QADHA TAB -->
+    <div id="tab-qadha" class="tab" style="display:none">
+      <div class="qhdr">
+        <div class="qtitle">Qadha Prayers</div>
+        <div class="qsub">Estimated from 1 September 2018</div>
+      </div>
+      <div class="qtotal">
+        <div><div class="q-total-num" id="q-total">—</div><div class="q-total-lbl">Total remaining</div></div>
+        <div style="text-align:right"><div class="q-rec" id="q-recovered">—</div><div class="q-total-lbl">Alhamdulillah</div></div>
+      </div>
+      <div class="q-pace" id="q-pace"></div>
+      <div class="q-milestones" id="q-milestones"></div>
+      <div class="qrows" id="qrows"></div>
+      <div class="q-note">
+        Tick each prayer to track today.<br>
+        Use <strong style="color:var(--a)">"Also prayed a Qadha?"</strong> in the dhikr screen to pay back 1 prayer.
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div id="tab-settings" class="tab" style="display:none">
+      <div class="shdr"><div class="stitle">Settings</div></div>
+
+      <div class="scard">
+        <div class="scard-hd">📍 Location</div>
+        <div class="city-grid" id="city-grid"></div>
+      </div>
+
+      <div class="scard">
+        <div class="scard-hd">🎨 Appearance</div>
+        <div class="theme-pills">
+          <button class="tp" id="tp-calm" onclick="setTheme('calm')">🌙 Calm</button>
+          <button class="tp" id="tp-warm" onclick="setTheme('warm')">☀️ Warm</button>
+        </div>
+      </div>
+
+      <div class="scard">
+        <div class="scard-hd">🕌 Prayer Calculation</div>
+        <div class="srow no-tap">
+          <div class="srow-left"><span class="srow-icon">📐</span>
+            <div><div class="srow-label">Method</div><div class="srow-sub">University of Islamic Sciences, Karachi</div></div>
+          </div>
+        </div>
+        <div class="srow no-tap">
+          <div class="srow-left"><span class="srow-icon">⏰</span>
+            <div><div class="srow-label">Asr Juristic Method</div><div class="srow-sub">Hanafi — shadow = 2× object height</div></div>
+          </div>
+        </div>
+        <div class="srow no-tap">
+          <div class="srow-left"><span class="srow-icon">📅</span>
+            <div><div class="srow-label">Qadha Counted From</div><div class="srow-sub">1 September 2018</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scard">
+        <div class="scard-hd">📊 Your Journey</div>
+        <div class="stats-grid" id="stats-grid"></div>
+      </div>
+      <div class="s-foot"></div>
+    </div>
+
+    <nav>
+      <button class="nbtn active" id="nav-today"    onclick="switchTab('today')"><span class="nbtn-icon">🕌</span>Today</button>
+      <button class="nbtn"        id="nav-qadha"    onclick="switchTab('qadha')"><span class="nbtn-icon">📿</span>Qadha</button>
+      <button class="nbtn"        id="nav-settings" onclick="switchTab('settings')"><span class="nbtn-icon">⚙️</span>Settings</button>
+    </nav>
+  </div>
+
+  <!-- Dhikr Sheet -->
+  <div id="dov">
+    <div id="dmod">
+      <div class="dhandle"></div>
+      <div class="d-pname" id="d-pname"></div>
+      <div class="d-msg"   id="d-msg"></div>
+      <div class="d-timing" id="d-timing"></div>
+      <div class="qtog" id="qtog" onclick="toggleQadha()">
+        <div><div class="qt-lbl2">Also prayed a Qadha prayer?</div><div class="qt-sub2">Tap to reduce your Qadha count by 1</div></div>
+        <div class="qchk" id="qchk">✓</div>
+      </div>
+      <div class="dsec">After-Prayer Remembrance</div>
+      <div class="drow" onclick="tapDhikr(0)">
+        <div><div class="d-arabic">سُبْحَانَ ٱللَّٰهِ</div><div class="d-trans">Subḥāna-llāh</div></div>
+        <div class="dctr"><div class="dnum" id="dc0">0</div><div class="dtgt">/ 33</div></div>
+      </div>
+      <div class="drow" onclick="tapDhikr(1)">
+        <div><div class="d-arabic">ٱلْحَمْدُ لِلَّٰهِ</div><div class="d-trans">Al-ḥamdu li-llāh</div></div>
+        <div class="dctr"><div class="dnum" id="dc1">0</div><div class="dtgt">/ 33</div></div>
+      </div>
+      <div class="drow" onclick="tapDhikr(2)">
+        <div><div class="d-arabic">ٱللَّٰهُ أَكْبَرُ</div><div class="d-trans">Allāhu Akbar</div></div>
+        <div class="dctr"><div class="dnum" id="dc2">0</div><div class="dtgt">/ 34</div></div>
+      </div>
+      <button class="dbtn" onclick="closeDhikr()">Done — Jazāka Allāhu Khayran</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════ */
+const PRAYERS=[
+  {key:'Fajr',   icon:'🌙',fard:2, sunnah:'2 Sunnah before Fard'},
+  {key:'Dhuhr',  icon:'☀️',fard:4, sunnah:'4 Sunnah before · 2 Sunnah after'},
+  {key:'Asr',    icon:'🌤',fard:4, sunnah:'4 Sunnah before (mustaḥabb)'},
+  {key:'Maghrib',icon:'🌅',fard:3, sunnah:'2 Sunnah after Fard'},
+  {key:'Isha',   icon:'🌑',fard:4, sunnah:'2 Sunnah · 3 Witr after Fard'},
+];
+const WIN=[
+  {key:'Fajr',   s:'Fajr',   e:'Sunrise'},
+  {key:'Dhuhr',  s:'Dhuhr',  e:'Asr'},
+  {key:'Asr',    s:'Asr',    e:'Maghrib'},
+  {key:'Maghrib',s:'Maghrib',e:'Isha'},
+  {key:'Isha',   s:'Isha',   e:'NextFajr'},
+];
+
+/* 18 quotes — rotate every 4 hours (6 slots/day)
+   Sources carefully verified for authenticity */
+const QUOTES=[
+  {t:'Indeed, prayer has been decreed upon the believers a decree of specified times.',s:'Quran 4:103'},
+  {t:'Successful indeed are the believers — those who humble themselves in their prayers.',s:'Quran 23:1–2'},
+  {t:'Seek help through patience and prayer. Indeed, Allah is with the patient.',s:'Quran 2:153'},
+  {t:'Guard strictly your prayers, especially the middle prayer. And stand before Allah humbly obedient.',s:'Quran 2:238'},
+  {t:'Establish prayer. Indeed, prayer prohibits immorality and wrongdoing, and the remembrance of Allah is greater.',s:'Quran 29:45'},
+  {t:'So woe to those who pray but are heedless of their prayer — those who only show off.',s:'Quran 107:4–6'},
+  {t:'The first matter the servant will be brought to account for on the Day of Judgment is the prayer. If it is sound, the rest of his deeds will be sound.',s:"Abū Dāwūd & Tirmidhī"},
+  {t:'The coolness of my eyes was placed in prayer.',s:"An-Nasā'ī — The Prophet ﷺ"},
+  {t:'Salah is the pillar of the religion. Whoever establishes it establishes the religion; whoever abandons it demolishes it.',s:'Al-Bayhaqi'},
+  {t:'Between a person and disbelief is the abandonment of prayer.',s:'Muslim'},
+  {t:'The key to Paradise is prayer, and the key to prayer is purification.',s:'Ahmad & Tirmidhī'},
+  {t:'Whoever guards the prayer, it will be a light, proof, and salvation for him on the Day of Judgment.',s:'Ahmad'},
+  {t:'The prayer at the beginning of its time is most beloved to Allah.',s:"Tirmidhī — The Prophet ﷺ"},
+  {t:'A man who prays five times a day is like one who bathes in a river at his door five times — no impurity remains on him.',s:'Bukhari & Muslim'},
+  {t:'When a servant stands in prayer, his sins are placed upon his head. With every bow and prostration, they fall away from him.',s:'Bayhaqi'},
+  {t:'Allah is more pleased by the repentance of His servant than a man who finds his lost camel after despair in a barren land.',s:'Bukhari & Muslim — on returning to Allah'},
+  {t:'Indeed, Allah does not tire of forgiving — so do not tire of asking. Every time you return to Him, He turns to you.',s:'Scholar summary of Quran 39:53 & hadith on tawbah'},
+  {t:'Do not let the weight of what you have missed stop you from what you can do today. Allah loves the one who keeps returning.',s:'Scholar reminder — on consistency after lapse'},
+];
+/* Quote rotates every 4 hours — 6 slots per day across 18 quotes */
+function currentQuote(){
+  const slot=Math.floor(new Date().getHours()/4); // 0-5
+  const idx=(doy()*6+slot)%QUOTES.length;
+  return QUOTES[idx];
+}
+
+const CITIES=[
+  {name:'📡 Current Location',lat:null,lng:null,gps:true},
+  {name:'Pukou, Nanjing',lat:32.0617,lng:118.7536},
+  {name:'Lahore',        lat:31.5204,lng:74.3587},
+  {name:'Faisalabad',    lat:31.4504,lng:73.1350},
+  {name:'Islamabad',     lat:33.6844,lng:73.0479},
+  {name:'Karachi',       lat:24.8607,lng:67.0011},
+  {name:'Rawalpindi',    lat:33.5651,lng:73.0169},
+];
+const MILESTONES=[10,25,50,100,250,500,1000,2500,5000,10000];
+const DTGT=[33,33,34];
+const CIRC=526.6;
+
+/* ═══════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════ */
+const CFG_DEF={lat:32.0617,lng:118.7536,city:'Pukou, Nanjing',method:1,school:1,gps:false};
+function getCFG(){try{const r=localStorage.getItem('slh_cfg');return r?{...CFG_DEF,...JSON.parse(r)}:CFG_DEF}catch{return CFG_DEF}}
+function saveCFG(c){try{localStorage.setItem('slh_cfg',JSON.stringify(c))}catch{}}
+let CFG=getCFG();
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let T=null,ticker=null;
+let dhikrCounts=[0,0,0],dhikrQadhaOn=false,currentPIdx=-1;
+
+/* ═══════════════════════════════════════
+   UTILS
+═══════════════════════════════════════ */
+function parse(str,base){const c=str.replace(/\s*\(.*\)/,'').trim();const[h,m]=c.split(':').map(Number);const d=new Date(base||Date.now());d.setHours(h,m,0,0);return d}
+function fmt12(d){let h=d.getHours(),m=d.getMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return`${h}:${String(m).padStart(2,'0')} ${ap}`}
+function fmtCD(ms){if(ms<=0)return'0:00:00';const s=Math.floor(ms/1000),h=Math.floor(s/3600),mi=Math.floor((s%3600)/60),sc=s%60;return`${h}:${String(mi).padStart(2,'0')}:${String(sc).padStart(2,'0')}`}
+function fmtRemain(ms){if(ms<=0)return'Ending';const m=Math.floor(ms/60000);if(m<1)return'< 1 min';if(m<60)return`${m} min left`;return`${Math.floor(m/60)}h ${m%60}m left`}
+const doy=()=>Math.ceil((Date.now()-new Date(new Date().getFullYear(),0,1))/86400000);
+const isFri=()=>new Date().getDay()===5;
+function todayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+let _tt=null;
+function showToast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast show ${type}`;clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3800)}
+
+/* ═══════════════════════════════════════
+   THEME
+═══════════════════════════════════════ */
+function setTheme(t){document.documentElement.setAttribute('data-theme',t==='warm'?'warm':'');localStorage.setItem('slh_th',t);document.getElementById('tp-calm').classList.toggle('sel',t==='calm');document.getElementById('tp-warm').classList.toggle('sel',t==='warm')}
+const getTheme=()=>localStorage.getItem('slh_th')||'calm';
+document.getElementById('tog').onclick=()=>setTheme(getTheme()==='warm'?'calm':'warm');
+setTheme(getTheme());
+
+/* ═══════════════════════════════════════
+   CACHE  (2dp lat/lng so GPS doesn't
+   create endless different keys)
+═══════════════════════════════════════ */
+const ptKey=()=>{const d=new Date();const la=(Math.round(CFG.lat*100)/100).toFixed(2);const ln=(Math.round(CFG.lng*100)/100).toFixed(2);return`slh_pt_${d.getFullYear()}_${d.getMonth()+1}_${la}_${ln}`};
+const getPTC=()=>{try{const r=localStorage.getItem(ptKey());return r?JSON.parse(r):null}catch{return null}};
+const setPTC=d=>{try{localStorage.setItem(ptKey(),JSON.stringify(d))}catch{}};
+
+/* ═══════════════════════════════════════
+   PRAYER LOG
+═══════════════════════════════════════ */
+function emptyLog(){return{Fajr:{prayed:false,time:null,timing:null,late:false,missed:false,reversedMissed:false,qadhaReduced:false},Dhuhr:{prayed:false,time:null,timing:null,late:false,missed:false,reversedMissed:false,qadhaReduced:false},Asr:{prayed:false,time:null,timing:null,late:false,missed:false,reversedMissed:false,qadhaReduced:false},Maghrib:{prayed:false,time:null,timing:null,late:false,missed:false,reversedMissed:false,qadhaReduced:false},Isha:{prayed:false,time:null,timing:null,late:false,missed:false,reversedMissed:false,qadhaReduced:false}}}
+function logKey(ds){return`slh_log_${ds||todayStr()}`}
+function getLog(ds){try{const r=localStorage.getItem(logKey(ds));return r?JSON.parse(r):emptyLog()}catch{return emptyLog()}}
+function setLog(log,ds){try{localStorage.setItem(logKey(ds),JSON.stringify(log))}catch{}}
+
+/* ═══════════════════════════════════════
+   QADHA
+═══════════════════════════════════════ */
+function calcInitDays(){const start=new Date(2018,8,1);start.setHours(0,0,0,0);const today=new Date();today.setHours(0,0,0,0);return Math.max(0,Math.floor((today-start)/86400000))}
+function initQadha(){const days=calcInitDays();const q={Fajr:days,Dhuhr:days,Asr:days,Maghrib:days,Isha:days};localStorage.setItem('slh_qadha',JSON.stringify(q));if(!localStorage.getItem('slh_qadha_init'))localStorage.setItem('slh_qadha_init',JSON.stringify(q));return q}
+function getQadha(){try{const r=localStorage.getItem('slh_qadha');return r?JSON.parse(r):initQadha()}catch{return initQadha()}}
+function saveQadha(q){try{localStorage.setItem('slh_qadha',JSON.stringify(q))}catch{}}
+function getQadhaInit(){try{const r=localStorage.getItem('slh_qadha_init');if(r)return JSON.parse(r);const q=getQadha();localStorage.setItem('slh_qadha_init',JSON.stringify(q));return q}catch{return null}}
+function addQadha(key){const q=getQadha();q[key]++;saveQadha(q)}
+function subtractQadha(key){const q=getQadha();if(q[key]>0)q[key]--;saveQadha(q);const qi=getQadhaInit();if(qi){const r=Object.values(qi).reduce((a,b)=>a+b,0)-Object.values(q).reduce((a,b)=>a+b,0);checkMilestones(r);}return q}
+
+/* ═══════════════════════════════════════
+   MILESTONES
+═══════════════════════════════════════ */
+function getSeenMs(){try{return JSON.parse(localStorage.getItem('slh_ms')||'[]')}catch{return[]}}
+function checkMilestones(rec){const seen=getSeenMs();for(const m of MILESTONES){if(rec>=m&&!seen.includes(m)){seen.push(m);localStorage.setItem('slh_ms',JSON.stringify(seen));showToast(`🏆 ${m.toLocaleString()} prayers paid back — Masha'Allah!`,'gold');break}}}
+
+/* ═══════════════════════════════════════
+   STREAK
+═══════════════════════════════════════ */
+function getStreak(){try{return JSON.parse(localStorage.getItem('slh_streak')||'{"current":0,"best":0,"lastDate":""}')}catch{return{current:0,best:0,lastDate:''}}}
+function updateStreak(){
+  const log=getLog();if(!PRAYERS.every(p=>log[p.key].prayed))return;
+  const sk=getStreak(),today=todayStr();if(sk.lastDate===today)return;
+  const prev=new Date();prev.setDate(prev.getDate()-1);
+  const yd=`${prev.getFullYear()}-${String(prev.getMonth()+1).padStart(2,'0')}-${String(prev.getDate()).padStart(2,'0')}`;
+  sk.current=sk.lastDate===yd?sk.current+1:1;sk.best=Math.max(sk.best,sk.current);sk.lastDate=today;
+  localStorage.setItem('slh_streak',JSON.stringify(sk));
+  if(sk.current>1)showToast(`🔥 ${sk.current}-day streak — keep going!`,'gold');
+  renderStreak();
+}
+function renderStreak(){const sk=getStreak();const bar=document.getElementById('streak-bar');if(sk.current>0){document.getElementById('streak-num').textContent=sk.current;document.getElementById('streak-txt').textContent=`day${sk.current!==1?'s':''} in a row`;bar.classList.add('show');}else bar.classList.remove('show')}
+
+/* ═══════════════════════════════════════
+   API
+═══════════════════════════════════════ */
+async function fetchMonth(){
+  const d=new Date();
+  const url=`https://api.aladhan.com/v1/calendar/${d.getFullYear()}/${d.getMonth()+1}?latitude=${CFG.lat}&longitude=${CFG.lng}&method=${CFG.method}&school=${CFG.school}`;
+  const r=await fetch(url);if(!r.ok)throw new Error('http');
+  const j=await r.json();if(j.code!==200)throw new Error('api');
+  return j.data;
+}
+async function fetchToday(){const day=new Date().getDate();let data=getPTC();if(!data){data=await fetchMonth();setPTC(data);}return data[day-1]}
+
+/* ═══════════════════════════════════════
+   TIME LOGIC
+═══════════════════════════════════════ */
+function buildTimes(tim){
+  const now=new Date(),fajr=parse(tim.Fajr,now);
+  const obj={
+    Fajr:fajr,Sunrise:parse(tim.Sunrise,now),
+    Dhuhr:parse(tim.Dhuhr,now),Asr:parse(tim.Asr,now),
+    Maghrib:parse(tim.Maghrib,now),Isha:parse(tim.Isha,now),
+    NextFajr:new Date(fajr.getTime()+86400000),
+  };
+  // API returns Midnight — use it for Isha zone calculations
+  if(tim.Midnight)obj.Midnight=parse(tim.Midnight,now);
+  return obj;
+}
+function getStatus(T){
+  const n=Date.now();
+  if(n<T.Fajr.getTime())return{cur:-1,nxt:0};
+  for(let i=0;i<WIN.length;i++){const s=T[WIN[i].s].getTime(),e=T[WIN[i].e].getTime();if(n>=s&&n<e)return{cur:i,nxt:(i+1)%WIN.length}}
+  for(let i=0;i<WIN.length;i++){if(n<T[WIN[i].s].getTime())return{cur:-1,nxt:i}}
+  return{cur:-1,nxt:0};
+}
+function winState(i,T,curIdx){
+  const n=Date.now();
+  if(i===curIdx)return'active';
+  if(n<T.Fajr.getTime())return i===4?'passed':'upcoming';
+  return n>=T[WIN[i].e].getTime()?'passed':'upcoming';
+}
+function nextPrayerTime(T,nxt,cur){
+  if(cur===4)return T.NextFajr;
+  if(nxt===0&&Date.now()>=T.Isha.getTime())return T.NextFajr;
+  return T[WIN[nxt].s];
+}
+function calcTiming(pIdx){
+  const s=T[WIN[pIdx].s].getTime(),e=T[WIN[pIdx].e].getTime();
+  const pct=(Date.now()-s)/(e-s);
+  return pct<0.25?'early':pct<0.75?'mid':'late';
+}
+
+/* ═══════════════════════════════════════
+   PRAYER ZONE DEFINITIONS (Hanafi fiqh)
+   Each zone: fraction of total window
+   wz-best = green   (optimal time)
+   wz-ok   = gold    (acceptable)
+   wz-late = orange  (makrūh/ending)
+═══════════════════════════════════════ */
+function getPrayerZones(key,T){
+  switch(key){
+    case 'Fajr':
+      // Best: pray in darkness (ghalas) — first 70%
+      // Acceptable: twilight — 70-88%
+      // Makrūh: near sunrise — last 12%
+      return[{f:.70,cls:'wz-best',lbl:'Best (darkness)'},{f:.88,cls:'wz-ok',lbl:'Acceptable'},{f:1,cls:'wz-late',lbl:'Near sunrise'}];
+    case 'Dhuhr':
+      // Best: first 40% after Zawal
+      // Acceptable: 40-75%
+      // Ending: 75-100%
+      return[{f:.40,cls:'wz-best',lbl:'Best time'},{f:.75,cls:'wz-ok',lbl:'Acceptable'},{f:1,cls:'wz-late',lbl:'Ending'}];
+    case 'Asr':
+      // Best: first 75% (before sun turns yellowish)
+      // Makrūh: last 25% — sun low/yellow (Hanafi: still valid but disliked)
+      return[{f:.75,cls:'wz-best',lbl:'Best time'},{f:1,cls:'wz-late',lbl:'Makrūh (sun low)'}];
+    case 'Maghrib':
+      // Best: pray promptly — first 35%
+      // Acceptable: 35-70%
+      // Late: 70-100%
+      return[{f:.35,cls:'wz-best',lbl:'Best (prompt)'},{f:.70,cls:'wz-ok',lbl:'Acceptable'},{f:1,cls:'wz-late',lbl:'Late'}];
+    case 'Isha':{
+      // Best: Isha → Midnight (dynamic from API)
+      // Acceptable: Midnight → ~85% of window
+      // Makrūh: last 15% (last sixth/third of night)
+      const s=T.Isha.getTime(),e=T.NextFajr.getTime();
+      const mid=T.Midnight?T.Midnight.getTime():s+(e-s)*0.55;
+      const bestF=Math.max(0.35,Math.min(0.65,(mid-s)/(e-s)));
+      const okF=Math.min(bestF+0.25,0.88);
+      return[{f:bestF,cls:'wz-best',lbl:'Best (before midnight)'},{f:okF,cls:'wz-ok',lbl:'Acceptable'},{f:1,cls:'wz-late',lbl:'Makrūh (very late)'}];
+    }
+    default:
+      return[{f:.60,cls:'wz-best',lbl:'Best'},{f:.85,cls:'wz-ok',lbl:'Acceptable'},{f:1,cls:'wz-late',lbl:'Ending'}];
+  }
+}
+
+/* Build the bar HTML for a prayer card.
+   Marker position is updated every second in updateBars(). */
+function buildBarHTML(p,i){
+  const zones=getPrayerZones(p.key,T);
+  let prev=0;
+  const segs=zones.map(z=>{
+    const w=((z.f-prev)*100).toFixed(2);prev=z.f;
+    // Last zone: round right corners; first: round left corners
+    return`<div class="wzone ${z.cls}" style="width:${w}%"></div>`;
+  }).join('');
+  // Collect unique zone classes for legend
+  const seen=new Set(),legend=zones.filter(z=>!seen.has(z.cls)&&seen.add(z.cls));
+  const legendHTML=legend.map(z=>{
+    const dot=z.cls==='wz-best'?'g':z.cls==='wz-ok'?'a':'o';
+    return`<span class="wleg"><span class="wleg-dot ${dot}"></span>${z.lbl}</span>`;
+  }).join('');
+  return`
+    <div class="wbar">
+      <div class="wbar-track" id="wtrack-${p.key.toLowerCase()}">
+        ${segs}
+        <div class="wmarker" id="wm-${p.key.toLowerCase()}"></div>
+      </div>
+      <div class="wbar-labels">
+        <span class="wbl-start">${fmt12(T[WIN[i].s])}</span>
+        <span class="wbl-status" id="ws-${p.key.toLowerCase()}">—</span>
+        <span class="wbl-end">${fmt12(T[WIN[i].e])}</span>
+      </div>
+      <div class="wbar-legend">${legendHTML}</div>
+    </div>`;
+}
+
+/* Update bar markers every second — targeted DOM, no full re-render */
+function updateBars(){
+  if(!T)return;
+  const now=Date.now();
+  PRAYERS.forEach((p,i)=>{
+    const marker=document.getElementById(`wm-${p.key.toLowerCase()}`);
+    const status=document.getElementById(`ws-${p.key.toLowerCase()}`);
+    if(!marker||!status)return;
+    const s=T[WIN[i].s].getTime(),e=T[WIN[i].e].getTime();
+    const pct=(now-s)/(e-s);
+    if(pct<=0){
+      marker.style.display='none';
+      status.textContent='Upcoming';status.className='wbl-status done';
+    }else if(pct>=1){
+      marker.style.display='none';
+      status.textContent='Ended';status.className='wbl-status done';
+    }else{
+      marker.style.display='block';
+      marker.style.left=`${Math.min(pct*100,98)}%`;
+      const rem=e-now;
+      status.textContent=fmtRemain(rem);
+      status.className='wbl-status'+(rem<20*60*1000?' ending':'');
+    }
+  });
+}
+
+/* ═══════════════════════════════════════
+   AUTO-MISSED
+═══════════════════════════════════════ */
+function checkAutoMissed(){
+  if(!T)return;
+  const now=Date.now(),log=getLog();let changed=false;
+  PRAYERS.forEach((p,i)=>{
+    if(now>=T[WIN[i].e].getTime()&&!log[p.key].prayed&&!log[p.key].missed){
+      log[p.key].missed=true;addQadha(p.key);changed=true;
+    }
+  });
+  if(changed){setLog(log);const{cur}=getStatus(T);renderCards(T,cur);}
+}
+
+/* ═══════════════════════════════════════
+   MARK / UNMARK PRAYED
+═══════════════════════════════════════ */
+function markPrayed(idx){
+  const p=PRAYERS[idx],log=getLog(),entry=log[p.key];
+  if(entry.prayed)return;
+  const windowClosed=Date.now()>=T[WIN[idx].e].getTime();
+  const wasMissed=entry.missed;
+  entry.prayed=true;entry.time=Date.now();
+  entry.timing=windowClosed?'late-mark':calcTiming(idx);
+  entry.late=windowClosed;entry.reversedMissed=wasMissed;entry.qadhaReduced=false;
+  if(wasMissed){subtractQadha(p.key);entry.missed=false;}
+  log[p.key]=entry;setLog(log);
+  updateStreak();showDhikr(idx,windowClosed);
+  const{cur}=getStatus(T);renderCards(T,cur);
+}
+function unmarkPrayed(idx){
+  const p=PRAYERS[idx],log=getLog(),entry=log[p.key];
+  if(!entry.prayed)return;
+  if(entry.qadhaReduced)addQadha(p.key);
+  if(entry.reversedMissed){addQadha(p.key);entry.missed=true;}
+  entry.prayed=false;entry.time=null;entry.timing=null;
+  entry.late=false;entry.reversedMissed=false;entry.qadhaReduced=false;
+  log[p.key]=entry;setLog(log);
+  renderStreak();const{cur}=getStatus(T);renderCards(T,cur);checkAllDone();
+  if(document.getElementById('tab-qadha').style.display!=='none')renderQadha();
+}
+function checkAllDone(){
+  const log=getLog();
+  document.getElementById('all-done').classList.toggle('show',PRAYERS.every(p=>log[p.key].prayed));
+}
+
+/* ═══════════════════════════════════════
+   DHIKR SHEET
+═══════════════════════════════════════ */
+function showDhikr(pIdx,wasLate){
+  currentPIdx=pIdx;dhikrCounts=[0,0,0];dhikrQadhaOn=false;
+  [0,1,2].forEach(i=>{const el=document.getElementById(`dc${i}`);el.textContent='0';el.classList.remove('done')});
+  document.getElementById('qtog').classList.remove('on');
+  const p=PRAYERS[pIdx],name=(p.key==='Dhuhr'&&isFri())?"Jumu'ah":p.key;
+  document.getElementById('d-pname').textContent=name;
+  if(wasLate){document.getElementById('d-msg').textContent='Marked as prayed. Allah knows your intention — Alhamdulillah.';document.getElementById('d-timing').textContent='';}
+  else{
+    document.getElementById('d-msg').textContent='Alhamdulillah — may Allah accept your prayer.';
+    const msgs={early:'⭐ Prayed at the start of the window — excellent!',mid:'✓ Prayed within the prayer window.',late:'⚡ Prayed near the end of the window — it still counts!'};
+    document.getElementById('d-timing').textContent=msgs[getLog()[p.key].timing]||'';
+  }
+  document.getElementById('dov').classList.add('show');
+}
+function toggleQadha(){dhikrQadhaOn=!dhikrQadhaOn;document.getElementById('qtog').classList.toggle('on',dhikrQadhaOn)}
+function tapDhikr(idx){
+  if(dhikrCounts[idx]<DTGT[idx]){dhikrCounts[idx]++;const el=document.getElementById(`dc${idx}`);el.textContent=dhikrCounts[idx];if(dhikrCounts[idx]>=DTGT[idx])el.classList.add('done');}
+}
+function closeDhikr(){
+  if(dhikrQadhaOn&&currentPIdx!==-1){
+    const p=PRAYERS[currentPIdx];subtractQadha(p.key);
+    const log=getLog();log[p.key].qadhaReduced=true;setLog(log);
+    showToast('📿 One Qadha prayer paid back','green');
+    if(document.getElementById('tab-qadha').style.display!=='none')renderQadha();
+  }
+  document.getElementById('dov').classList.remove('show');
+  currentPIdx=-1;const{cur}=getStatus(T);renderCards(T,cur);checkAllDone();
+}
+document.getElementById('dov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDhikr()});
+
+/* ═══════════════════════════════════════
+   LOCATION
+═══════════════════════════════════════ */
+function renderCityChips(){
+  const grid=document.getElementById('city-grid');grid.innerHTML='';
+  CITIES.forEach(c=>{
+    const isSel=c.gps?CFG.gps:(c.name===CFG.city&&!CFG.gps);
+    const chip=document.createElement('button');
+    chip.className='city-chip'+(isSel?' sel':'');
+    chip.textContent=c.name;
+    chip.onclick=()=>c.gps?useGPS():applyCity(c);
+    grid.appendChild(chip);
+  });
+}
+async function applyCity(city){
+  CFG={...CFG,lat:city.lat,lng:city.lng,city:city.name,gps:false};
+  saveCFG(CFG);renderCityChips();await reloadTimes(city.name);
+}
+function useGPS(){
+  if(!navigator.geolocation){showToast('GPS not available on this device');return;}
+  const chips=document.querySelectorAll('.city-chip');
+  if(chips[0])chips[0].textContent='⏳ Getting location…';
+  navigator.geolocation.getCurrentPosition(
+    async pos=>{
+      CFG={...CFG,lat:pos.coords.latitude,lng:pos.coords.longitude,city:'Current Location',gps:true};
+      saveCFG(CFG);renderCityChips();await reloadTimes('Current Location');
+    },
+    ()=>{renderCityChips();showToast('Could not get location — select a city instead');},
+    {timeout:10000}
+  );
+}
+async function reloadTimes(label){
+  document.getElementById('loc').textContent='Loading…';
+  let dayData=null;
+  try{dayData=await fetchToday();}
+  catch{const c=getPTC();if(c)dayData=c[new Date().getDate()-1];}
+  if(!dayData){showToast('Could not fetch times');document.getElementById('loc').textContent=CFG.city;return;}
+  T=buildTimes(dayData.timings);
+  document.getElementById('loc').textContent=CFG.city;
+  renderHijri(dayData.date.hijri);
+  checkAutoMissed();
+  const{cur}=getStatus(T);renderCards(T,cur);updateHero(T);
+  showToast(`📍 Times updated for ${label||CFG.city}`);
+}
+
+/* ═══════════════════════════════════════
+   TABS
+═══════════════════════════════════════ */
+function switchTab(name){
+  ['today','qadha','settings'].forEach(n=>{
+    document.getElementById(`tab-${n}`).style.display=n===name?'block':'none';
+    document.getElementById(`nav-${n}`).classList.toggle('active',n===name);
+  });
+  window.scrollTo({top:0,behavior:'instant'});
+  if(name==='qadha')renderQadha();
+  if(name==='settings'){
+    renderCityChips();renderStats();
+    document.getElementById('tp-calm').classList.toggle('sel',getTheme()==='calm');
+    document.getElementById('tp-warm').classList.toggle('sel',getTheme()==='warm');
+  }
+}
+
+/* ═══════════════════════════════════════
+   RENDER — PRAYER CARDS
+   Cards update every 10s; bars update every 1s
+═══════════════════════════════════════ */
+function renderCards(T,curIdx){
+  const el=document.getElementById('cards');el.innerHTML='';
+  const log=getLog();let doneCount=0;
+
+  PRAYERS.forEach((p,i)=>{
+    const entry=log[p.key];
+    const ws=winState(i,T,curIdx);
+    const name=(p.key==='Dhuhr'&&isFri())?"Jumu'ah":p.key;
+    if(entry.prayed)doneCount++;
+
+    let cls=`card ${ws}`;
+    if(entry.prayed)cls+=' prayed';
+    else if(entry.missed)cls+=' missed-card';
+
+    let right='';
+    if(entry.prayed){
+      right=`<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+        <div class="tick tick-done">✓</div>
+        <button class="undo-btn" onclick="unmarkPrayed(${i})">Undo</button>
+      </div>`;
+    }else if(ws==='upcoming'){
+      right=`<span class="bdg b-up">Upcoming</span>`;
+    }else if(ws==='active'){
+      right=`<button class="tick tick-ready" onclick="markPrayed(${i})">✓</button>`;
+    }else{
+      const ml=entry.missed?`<div class="miss-lbl">Missed</div>`:'';
+      right=`<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+        <button class="tick tick-late" onclick="markPrayed(${i})">✓</button>${ml}
+      </div>`;
+    }
+
+    const div=document.createElement('div');
+    div.className=cls;div.setAttribute('data-p',p.key.toLowerCase());
+    div.innerHTML=`
+      <div class="card-row">
+        <div class="ico">${p.icon}</div>
+        <div class="inf">
+          <div class="pn">${name}</div>
+          <div class="pt">${fmt12(T[WIN[i].s])}</div>
+          <div class="pk">${p.fard} Fard rak'ahs</div>
+          <div class="ps">${p.sunnah}</div>
+        </div>
+        <div class="pr">${right}</div>
+      </div>
+      ${buildBarHTML(p,i)}`;
+    el.appendChild(div);
+
+    // Gap separator after Fajr — nafl not permitted sunrise → Zawal
+    if(p.key==='Fajr'){
+      const gap=document.createElement('div');
+      gap.className='prayer-gap';
+      gap.innerHTML=`
+        <div class="gap-line"></div>
+        <div class="gap-label">Nafl prayers not permitted<br>Sunrise → Zawāl</div>
+        <div class="gap-line"></div>`;
+      el.appendChild(gap);
+    }
+  });
+
+  // Update summary badge
+  const sumEl=document.getElementById('p-sum');
+  sumEl.textContent=`${doneCount} / 5`;
+  sumEl.classList.toggle('done',doneCount===5);
+
+  // Immediately update bars after render
+  updateBars();
+}
+
+/* ═══════════════════════════════════════
+   RENDER — QADHA TAB
+═══════════════════════════════════════ */
+function calcPace(){
+  const qi=getQadhaInit(),q=getQadha();if(!qi)return null;
+  const totalInit=Object.values(qi).reduce((a,b)=>a+b,0);
+  const totalRem=Object.values(q).reduce((a,b)=>a+b,0);
+  const recovered=totalInit-totalRem;if(recovered<5)return null;
+  const installDate=localStorage.getItem('slh_install')||todayStr();
+  const daysSince=Math.max(1,Math.floor((Date.now()-new Date(installDate))/86400000));
+  const perDay=recovered/daysSince;if(perDay<0.1)return null;
+  const daysLeft=Math.ceil(totalRem/perDay);
+  return{perDay:perDay.toFixed(1),yrs:(daysLeft/365).toFixed(1)};
+}
+function renderQadha(){
+  const q=getQadha(),qi=getQadhaInit();
+  const totalRem=Object.values(q).reduce((a,b)=>a+b,0);
+  const totalInit=qi?Object.values(qi).reduce((a,b)=>a+b,0):totalRem;
+  const recovered=Math.max(0,totalInit-totalRem);
+  document.getElementById('q-total').textContent=totalRem.toLocaleString();
+  document.getElementById('q-recovered').textContent=`${recovered.toLocaleString()} recovered`;
+  const pace=calcPace();const paceEl=document.getElementById('q-pace');
+  if(pace){paceEl.innerHTML=`At your current pace of <strong>${pace.perDay} prayers/day</strong>, it will take approximately <strong>${pace.yrs} years</strong> to complete your Qadha. Every prayer counts.`;paceEl.classList.add('show');}
+  else paceEl.classList.remove('show');
+  const seen=getSeenMs();const mEl=document.getElementById('q-milestones');mEl.innerHTML='';
+  MILESTONES.slice(0,8).forEach(m=>{const b=document.createElement('span');b.className='q-mbadge'+(seen.includes(m)?' unlocked':'');b.textContent=(seen.includes(m)?'✓ ':'')+m.toLocaleString();mEl.appendChild(b)});
+  const rows=document.getElementById('qrows');rows.innerHTML='';
+  PRAYERS.forEach(p=>{
+    const rem=q[p.key],init=qi?qi[p.key]:rem,rec=Math.max(0,init-rem),pct=init>0?Math.min(100,(rec/init)*100):0;
+    const div=document.createElement('div');div.className='qr';
+    div.innerHTML=`
+      <div class="qr-top"><div class="qr-left"><span class="qr-icon">${p.icon}</span><span class="qr-pname">${p.key}</span></div><div class="qr-count">${rem.toLocaleString()}</div></div>
+      <div class="qr-bar"><div class="qr-fill" style="width:${pct}%"></div></div>
+      <div class="qr-meta"><span>${rec.toLocaleString()} paid back</span><span>${pct.toFixed(2)}%</span></div>`;
+    rows.appendChild(div);
+  });
+}
+
+/* ═══════════════════════════════════════
+   RENDER — SETTINGS STATS
+═══════════════════════════════════════ */
+function renderStats(){
+  const sk=getStreak(),qi=getQadhaInit(),q=getQadha();
+  const totalRem=Object.values(q).reduce((a,b)=>a+b,0);
+  const totalInit=qi?Object.values(qi).reduce((a,b)=>a+b,0):totalRem;
+  const recovered=Math.max(0,totalInit-totalRem);
+  const installDate=localStorage.getItem('slh_install')||todayStr();
+  const daysUsing=Math.max(1,Math.floor((Date.now()-new Date(installDate))/86400000)+1);
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-cell"><div class="stat-num">${sk.current}</div><div class="stat-lbl">Current streak</div></div>
+    <div class="stat-cell"><div class="stat-num">${sk.best}</div><div class="stat-lbl">Best streak</div></div>
+    <div class="stat-cell"><div class="stat-num">${recovered.toLocaleString()}</div><div class="stat-lbl">Prayers recovered</div></div>
+    <div class="stat-cell"><div class="stat-num">${getSeenMs().length}</div><div class="stat-lbl">Milestones reached</div></div>
+    <div class="stat-cell"><div class="stat-num">${daysUsing}</div><div class="stat-lbl">Days using app</div></div>
+    <div class="stat-cell"><div class="stat-num">${totalRem.toLocaleString()}</div><div class="stat-lbl">Qadha remaining</div></div>`;
+}
+
+/* ═══════════════════════════════════════
+   RENDER — HERO
+═══════════════════════════════════════ */
+function updateHero(T){
+  const{cur,nxt}=getStatus(T);const n=Date.now();
+  const ring=document.getElementById('rfg');let offset=CIRC;
+  if(cur!==-1){
+    const w=WIN[cur],p=PRAYERS[cur];
+    const s=T[w.s].getTime(),e=T[w.e].getTime();
+    const frac=Math.max(0,Math.min(1,(e-n)/(e-s)));offset=CIRC*(1-frac);
+    const name=(p.key==='Dhuhr'&&isFri())?"Jumu'ah":p.key;
+    document.getElementById('rl').textContent='Current Prayer';
+    document.getElementById('rn').textContent=name;
+    document.getElementById('rt').textContent=fmt12(T[w.s]);
+    const nt=nextPrayerTime(T,nxt,cur);
+    const nn=(PRAYERS[nxt].key==='Dhuhr'&&isFri())?"Jumu'ah":PRAYERS[nxt].key;
+    document.getElementById('cdl').textContent='Next prayer in';
+    document.getElementById('cdv').textContent=fmtCD(nt.getTime()-n);
+    document.getElementById('cdn').textContent=`${nn} · ${fmt12(nt)}`;
+  }else{
+    const np=PRAYERS[nxt],nt=nextPrayerTime(T,nxt,cur);
+    const nn=(np.key==='Dhuhr'&&isFri())?"Jumu'ah":np.key;
+    document.getElementById('rl').textContent='Coming up';
+    document.getElementById('rn').textContent=nn;
+    document.getElementById('rt').textContent=fmt12(nt);
+    document.getElementById('cdl').textContent='Starting in';
+    document.getElementById('cdv').textContent=fmtCD(nt.getTime()-n);
+    document.getElementById('cdn').textContent=`${nn} · ${fmt12(nt)}`;
+    offset=CIRC*0.85;
+  }
+  ring.style.strokeDashoffset=offset;
+}
+
+/* ═══════════════════════════════════════
+   TICK LOOP
+   Hero:     every 1s
+   Bars:     every 1s (lightweight DOM update)
+   Missed:   every 15s
+   Cards:    every 10s (full re-render)
+═══════════════════════════════════════ */
+function startTick(){
+  if(ticker)clearInterval(ticker);let i=0;
+  ticker=setInterval(()=>{
+    if(!T)return;
+    updateHero(T);
+    updateBars();   // live bar markers
+    i++;
+    if(i%15===0)checkAutoMissed();
+    if(i%10===0){const{cur}=getStatus(T);renderCards(T,cur);}
+  },1000);
+}
+
+/* ═══════════════════════════════════════
+   MISC
+═══════════════════════════════════════ */
+function renderQuote(){const q=currentQuote();document.getElementById('qt-text').textContent=`"${q.t}"`;document.getElementById('qt-src').textContent=q.s}
+function renderHijri(h){document.getElementById('hij').textContent=`${h.day} ${h.month.en} ${h.year} AH`}
+function renderFriday(){if(isFri())document.getElementById('fri').classList.add('show')}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+async function init(){
+  if(!localStorage.getItem('slh_install'))localStorage.setItem('slh_install',todayStr());
+  renderQuote();
+  document.getElementById('loc').textContent=CFG.city;
+  getQadha();
+
+  let dayData=null,offline=false;
+  try{dayData=await fetchToday();}
+  catch{const c=getPTC();if(c){dayData=c[new Date().getDate()-1];offline=true;}}
+
+  if(!dayData){
+    document.getElementById('ld').innerHTML=`
+      <div>
+        <div style="font-size:42px;margin-bottom:16px">⚠️</div>
+        <div style="font-size:15px;color:var(--t);font-weight:500">Could not load prayer times</div>
+        <div style="font-size:13px;color:var(--d);margin-top:8px;line-height:1.5">Check your internet connection<br>and try again.</div>
+        <button onclick="location.reload()" style="margin-top:22px;padding:11px 28px;border-radius:24px;background:var(--a);color:#fff;border:none;font-size:14px;cursor:pointer;font-family:inherit;font-weight:500">Try again</button>
+      </div>`;
+    return;
+  }
+
+  if(offline)document.getElementById('ob').classList.add('show');
+  T=buildTimes(dayData.timings);
+  renderHijri(dayData.date.hijri);
+  renderFriday();renderStreak();
+  checkAutoMissed();
+  const{cur}=getStatus(T);
+  renderCards(T,cur);updateHero(T);checkAllDone();
+  document.getElementById('ld').style.display='none';
+  document.getElementById('mn').style.display='block';
+  startTick();
+}
+
+init();
+</script>
+</body>
+</html>
