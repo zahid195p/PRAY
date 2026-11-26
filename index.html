@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d1b2a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Salah">
@@ -29,9 +32,10 @@
   --b:rgba(0,0,0,.07);--sh:0 8px 32px rgba(191,95,26,.08);--re:rgba(0,0,0,.06);
 }
 
-html{-webkit-text-size-adjust:100%}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;transition:background var(--tr),color var(--tr);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
-#app{max-width:430px;margin:0 auto}
+html{-webkit-text-size-adjust:100%;touch-action:manipulation;overflow-x:hidden}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;min-height:100dvh;overflow-x:hidden;width:100%;transition:background var(--tr),color var(--tr);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#app{max-width:430px;margin:0 auto;overflow-x:hidden}
+button,.drow,.tick,.card{touch-action:manipulation}
 
 /* ── TOAST ── */
 #toast{
@@ -51,7 +55,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);min-hei
 #ob.show{display:block}
 
 /* ── HEADER ── */
-header{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px)+16px) 22px 0}
+header{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 16px) 22px 0}
 .loc{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--a)}
 .hij{font-size:12px;color:var(--d);margin-top:2px}
 .tog{width:48px;height:28px;border-radius:14px;background:var(--s2);border:1.5px solid var(--b);position:relative;cursor:pointer;flex-shrink:0;transition:background var(--tr)}
@@ -77,6 +81,7 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-w
 .ring-svg{width:190px;height:190px;transform:rotate(-90deg)}
 .rtrk{fill:none;stroke:var(--re);stroke-width:7;transition:stroke var(--tr)}
 .rfg{fill:none;stroke:var(--a);stroke-width:7;stroke-linecap:round;stroke-dasharray:526.6;stroke-dashoffset:526.6;transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1),stroke var(--tr)}
+@media (max-width:360px){.ring-w,.ring-svg{width:160px;height:160px}.cdv{font-size:32px}}
 .rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;padding:22px}
 .rl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--d)}
 .rn{font-family:'Cinzel',serif;font-size:26px;font-weight:600;line-height:1;color:var(--t);margin-top:1px}
@@ -279,7 +284,7 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-w
 /* ── DHIKR MODAL ── */
 #dov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:flex-end;justify-content:center}
 #dov.show{display:flex}
-#dmod{width:100%;max-width:430px;background:var(--s);border-radius:24px 24px 0 0;padding:20px 22px calc(env(safe-area-inset-bottom,0px)+22px);transform:translateY(100%);transition:transform .36s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto}
+#dmod{width:100%;max-width:430px;background:var(--s);border-radius:24px 24px 0 0;padding:20px 22px calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateY(100%);transition:transform .36s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto}
 #dov.show #dmod{transform:translateY(0)}
 .dhandle{width:36px;height:4px;background:var(--b);border-radius:2px;margin:0 auto 18px}
 .d-pname{font-family:'Cinzel',serif;font-size:22px;font-weight:600;color:var(--t);text-align:center}
@@ -310,12 +315,16 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-w
 .fri,#all-done{animation:fu .4s ease .02s both}
 .qt{animation:fu .5s ease .12s both}
 .sec-row{animation:fu .4s ease .16s both}
-.card{animation:fu .45s ease both}
-.card:nth-child(1){animation-delay:.08s}
-.card:nth-child(2){animation-delay:.14s}
-.card:nth-child(3){animation-delay:.20s}
-.card:nth-child(4){animation-delay:.26s}
-.card:nth-child(5){animation-delay:.32s}
+.cards.intro .card{animation:fu .45s ease both}
+.cards.intro .card:nth-child(1){animation-delay:.08s}
+.cards.intro .card:nth-child(3){animation-delay:.14s}
+.cards.intro .card:nth-child(4){animation-delay:.20s}
+.cards.intro .card:nth-child(5){animation-delay:.26s}
+.cards.intro .card:nth-child(6){animation-delay:.32s}
+/* settings buttons */
+.sbtn{font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:20px;border:1.5px solid var(--a3);background:var(--a2);color:var(--a);cursor:pointer;flex-shrink:0}
+.sbtn.on{border-color:var(--g3);background:var(--g2);color:var(--g)}
+.srow-note{padding:0 16px 14px;font-size:11px;color:var(--d);line-height:1.55}
 </style>
 </head>
 <body>
@@ -433,6 +442,34 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-w
             <div><div class="srow-label">Qadha Counted From</div><div class="srow-sub">1 September 2018</div></div>
           </div>
         </div>
+      </div>
+
+      <div class="scard">
+        <div class="scard-hd">🔔 Prayer Alerts</div>
+        <div class="srow">
+          <div class="srow-left"><span class="srow-icon">⏰</span>
+            <div><div class="srow-label">Adhan time alerts</div><div class="srow-sub" id="notif-sub">Off</div></div>
+          </div>
+          <button class="sbtn" id="notif-btn" onclick="toggleAlerts()">Turn on</button>
+        </div>
+        <div class="srow-note" id="notif-note"></div>
+      </div>
+
+      <div class="scard">
+        <div class="scard-hd">💾 Backup &amp; Restore</div>
+        <div class="srow">
+          <div class="srow-left"><span class="srow-icon">📤</span>
+            <div><div class="srow-label">Copy backup code</div><div class="srow-sub">Qadha, logs, streak &amp; settings</div></div>
+          </div>
+          <button class="sbtn" onclick="exportBackup()">Copy</button>
+        </div>
+        <div class="srow">
+          <div class="srow-left"><span class="srow-icon">📥</span>
+            <div><div class="srow-label">Restore from code</div><div class="srow-sub">Paste a code from another device</div></div>
+          </div>
+          <button class="sbtn" onclick="importBackup()">Paste</button>
+        </div>
+        <div class="srow-note" id="storage-note"></div>
       </div>
 
       <div class="scard">
@@ -888,18 +925,19 @@ function useGPS(){
     {timeout:10000}
   );
 }
-async function reloadTimes(label){
-  document.getElementById('loc').textContent='Loading…';
+async function reloadTimes(label,silent){
+  if(!silent)document.getElementById('loc').textContent='Loading…';
   let dayData=null;
   try{dayData=await fetchToday();}
   catch{const c=getPTC();if(c)dayData=c[new Date().getDate()-1];}
   if(!dayData){showToast('Could not fetch times');document.getElementById('loc').textContent=CFG.city;return;}
-  T=buildTimes(dayData.timings);
+  T=buildTimes(dayData.timings);loadedDay=todayStr();
   document.getElementById('loc').textContent=CFG.city;
   renderHijri(dayData.date.hijri);
   checkAutoMissed();
-  const{cur}=getStatus(T);renderCards(T,cur);updateHero(T);
-  showToast(`📍 Times updated for ${label||CFG.city}`);
+  const{cur}=getStatus(T);renderCards(T,cur,true);updateHero(T);checkAllDone();renderStreak();renderQuote();
+  document.getElementById('fri').classList.toggle('show',isFri());
+  if(!silent)showToast(`📍 Times updated for ${label||CFG.city}`);
 }
 
 /* ═══════════════════════════════════════
@@ -913,7 +951,7 @@ function switchTab(name){
   window.scrollTo({top:0,behavior:'instant'});
   if(name==='qadha')renderQadha();
   if(name==='settings'){
-    renderCityChips();renderStats();
+    renderCityChips();renderStats();renderAlertsUI();renderStorageNote();
     document.getElementById('tp-calm').classList.toggle('sel',getTheme()==='calm');
     document.getElementById('tp-warm').classList.toggle('sel',getTheme()==='warm');
   }
@@ -923,9 +961,17 @@ function switchTab(name){
    RENDER — PRAYER CARDS
    Cards update every 10s; bars update every 1s
 ═══════════════════════════════════════ */
-function renderCards(T,curIdx){
-  const el=document.getElementById('cards');el.innerHTML='';
+let _cardSig='',_cardsRendered=false;
+function renderCards(T,curIdx,force){
+  const el=document.getElementById('cards');
   const log=getLog();let doneCount=0;
+  // Only rebuild the DOM when something visible actually changed —
+  // rebuilding every 10s made the whole list flash/"refresh".
+  const sig=[todayStr(),curIdx,isFri(),T.Fajr.getTime(),...PRAYERS.map((p,i)=>winState(i,T,curIdx)+(log[p.key].prayed?'P':'')+(log[p.key].missed?'M':''))].join('|');
+  if(!force&&sig===_cardSig){updateBars();return;}
+  _cardSig=sig;
+  el.innerHTML='';
+  if(!_cardsRendered){_cardsRendered=true;el.classList.add('intro');setTimeout(()=>el.classList.remove('intro'),1200);}
 
   PRAYERS.forEach((p,i)=>{
     const entry=log[p.key];
@@ -1088,16 +1134,151 @@ function updateHero(T){
    Missed:   every 15s
    Cards:    every 10s (full re-render)
 ═══════════════════════════════════════ */
+let loadedDay=null;
 function startTick(){
   if(ticker)clearInterval(ticker);let i=0;
   ticker=setInterval(()=>{
     if(!T)return;
+    // New day → fetch the new day's times (previously the app kept yesterday's)
+    if(loadedDay&&loadedDay!==todayStr()){loadedDay=todayStr();reloadTimes(null,true);return;}
     updateHero(T);
-    updateBars();   // live bar markers
+    updateBars();
+    checkAlerts();
     i++;
     if(i%15===0)checkAutoMissed();
     if(i%10===0){const{cur}=getStatus(T);renderCards(T,cur);}
   },1000);
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden||!T)return;
+  if(loadedDay!==todayStr()){loadedDay=todayStr();reloadTimes(null,true);return;}
+  checkAutoMissed();const{cur}=getStatus(T);renderCards(T,cur);updateHero(T);checkAllDone();renderStreak();
+});
+
+/* ═══════════════════════════════════════
+   PRAYER ALERTS
+   Fires a notification + chime when each prayer
+   starts, and a reminder 20 min before it ends
+   if not yet marked as prayed.
+═══════════════════════════════════════ */
+const alertsOn=()=>localStorage.getItem('slh_alerts')==='1';
+let swReg=null,audioCtx=null;
+function unlockAudio(){
+  try{
+    if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}
+    if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+  }catch{}
+}
+document.addEventListener('touchend',unlockAudio,{passive:true});
+document.addEventListener('click',unlockAudio);
+function chime(){
+  try{
+    unlockAudio();if(!audioCtx)return;
+    const t0=audioCtx.currentTime;
+    [[660,0],[880,.35],[660,.7],[880,1.05]].forEach(([f,d])=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='sine';o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(0,t0+d);g.gain.linearRampToValueAtTime(.35,t0+d+.04);g.gain.exponentialRampToValueAtTime(.001,t0+d+.32);
+      o.start(t0+d);o.stop(t0+d+.34);
+    });
+  }catch{}
+  try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch{}
+}
+async function notify(title,body,tag){
+  showToast(`🔔 ${title} — ${body}`,'gold');chime();
+  if(!('Notification'in window)||Notification.permission!=='granted')return;
+  try{
+    const reg=swReg||(navigator.serviceWorker&&await navigator.serviceWorker.getRegistration());
+    if(reg){await reg.showNotification(title,{body,tag,icon:'icon-512.png',badge:'icon-180.png',renotify:true});return;}
+    new Notification(title,{body,tag,icon:'icon-512.png'});
+  }catch{}
+}
+function firedKey(){return`slh_fired_${todayStr()}`}
+function checkAlerts(){
+  if(!alertsOn()||!T)return;
+  const now=Date.now();let fired;
+  try{fired=JSON.parse(localStorage.getItem(firedKey())||'[]')}catch{fired=[]}
+  const log=getLog();let changed=false;
+  PRAYERS.forEach((p,i)=>{
+    const name=(p.key==='Dhuhr'&&isFri())?"Jumu'ah":p.key;
+    const s=T[WIN[i].s].getTime(),e=T[WIN[i].e].getTime();
+    const startId=p.key+':start',endId=p.key+':end';
+    // Start alert — only if we're within 10 min of start (avoid a burst of old alerts on open)
+    if(now>=s&&now<s+10*60000&&!fired.includes(startId)){
+      fired.push(startId);changed=true;
+      if(!log[p.key].prayed)notify(`${name} time 🕌`,`${name} has started · ${fmt12(T[WIN[i].s])}`,startId);
+    }
+    const warn=e-20*60000;
+    if(now>=warn&&now<e&&!fired.includes(endId)){
+      fired.push(endId);changed=true;
+      if(!log[p.key].prayed)notify(`${name} ending soon ⏳`,`About 20 minutes left to pray ${name}`,endId);
+    }
+  });
+  if(changed)try{localStorage.setItem(firedKey(),JSON.stringify(fired))}catch{}
+}
+const isStandalone=()=>window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function renderAlertsUI(){
+  const btn=document.getElementById('notif-btn'),sub=document.getElementById('notif-sub'),note=document.getElementById('notif-note');
+  const on=alertsOn(),perm=('Notification'in window)?Notification.permission:'unsupported';
+  btn.textContent=on?'On ✓':'Turn on';btn.classList.toggle('on',on);
+  sub.textContent=!on?'Off':perm==='granted'?'Notifications + chime':'Chime only (notifications blocked)';
+  let n='';
+  if(isIOS()&&!isStandalone())n='📱 On iPhone, notifications only work when this app is added to your Home Screen: tap Share → "Add to Home Screen", then open it from there and turn alerts on.';
+  else if(perm==='denied')n='Notifications are blocked. Enable them in iPhone Settings → Notifications → Salah.';
+  else n='Alerts arrive while the app is open or recently in the background. iPhone may pause web apps that have been closed for a while, so keep it open in the background around prayer times.';
+  note.textContent=n;
+}
+async function toggleAlerts(){
+  unlockAudio();
+  if(alertsOn()){localStorage.setItem('slh_alerts','0');renderAlertsUI();return;}
+  if('Notification'in window&&Notification.permission==='default'){
+    try{await Notification.requestPermission()}catch{}
+  }
+  localStorage.setItem('slh_alerts','1');
+  // Don't replay alerts for prayers that already started before alerts were turned on
+  try{const f=[];const now=Date.now();PRAYERS.forEach((p,i)=>{if(now>=T[WIN[i].s].getTime())f.push(p.key+':start')});localStorage.setItem(firedKey(),JSON.stringify(f))}catch{}
+  renderAlertsUI();
+  notify('Alerts on ✓','You will be reminded at each prayer time','test');
+}
+
+/* ═══════════════════════════════════════
+   STORAGE PERSISTENCE + BACKUP
+═══════════════════════════════════════ */
+async function requestPersist(){
+  try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch{}
+}
+function backupKeys(){const k=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key.startsWith('slh_')&&!key.startsWith('slh_pt_')&&!key.startsWith('slh_fired_'))k.push(key)}return k}
+async function exportBackup(){
+  const data={v:1,at:new Date().toISOString(),d:{}};
+  backupKeys().forEach(k=>data.d[k]=localStorage.getItem(k));
+  const code='SALAH1:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  let ok=false;
+  try{await navigator.clipboard.writeText(code);ok=true}catch{}
+  if(ok)showToast('📋 Backup code copied — paste it somewhere safe','green');
+  else window.prompt('Copy this backup code:',code);
+  localStorage.setItem('slh_last_backup',todayStr());renderStorageNote();
+}
+function importBackup(){
+  const code=(window.prompt('Paste your backup code. This will replace the data on this device.')||'').trim();
+  if(!code)return;
+  try{
+    if(!code.startsWith('SALAH1:'))throw 0;
+    const data=JSON.parse(decodeURIComponent(escape(atob(code.slice(7)))));
+    if(!data||!data.d)throw 0;
+    backupKeys().forEach(k=>localStorage.removeItem(k));
+    Object.entries(data.d).forEach(([k,v])=>{if(k.startsWith('slh_'))localStorage.setItem(k,v)});
+    showToast('✅ Restored — reloading…','green');
+    setTimeout(()=>location.reload(),900);
+  }catch{showToast('That backup code is not valid')}
+}
+function renderStorageNote(){
+  const last=localStorage.getItem('slh_last_backup');
+  let n='Your data is saved on this device only. ';
+  if(isIOS())n+='Safari and the Home Screen app keep separate data, and Safari may clear site data after 7 days without a visit — using the Home Screen app avoids that. ';
+  n+='Use the backup code to move data to another device.';
+  if(last)n+=` Last backup: ${last}.`;
+  document.getElementById('storage-note').textContent=n;
 }
 
 /* ═══════════════════════════════════════
@@ -1132,7 +1313,7 @@ async function init(){
   }
 
   if(offline)document.getElementById('ob').classList.add('show');
-  T=buildTimes(dayData.timings);
+  T=buildTimes(dayData.timings);loadedDay=todayStr();
   renderHijri(dayData.date.hijri);
   renderFriday();renderStreak();
   checkAutoMissed();
@@ -1144,6 +1325,10 @@ async function init(){
 }
 
 init();
+requestPersist();
+if('serviceWorker'in navigator){
+  navigator.serviceWorker.register('sw.js').then(r=>{swReg=r}).catch(()=>{});
+}
 </script>
 </body>
 </html>
