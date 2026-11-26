@@ -667,14 +667,74 @@ function renderStreak(){const sk=getStreak();const bar=document.getElementById('
 /* ═══════════════════════════════════════
    API
 ═══════════════════════════════════════ */
-async function fetchMonth(){
-  const d=new Date();
-  const url=`https://api.aladhan.com/v1/calendar/${d.getFullYear()}/${d.getMonth()+1}?latitude=${CFG.lat}&longitude=${CFG.lng}&method=${CFG.method}&school=${CFG.school}`;
-  const r=await fetch(url);if(!r.ok)throw new Error('http');
-  const j=await r.json();if(j.code!==200)throw new Error('api');
-  return j.data;
+/* Prayer times are calculated on the device (standard astronomical
+   formulas, same as the Aladhan/PrayTimes method) — no internet needed,
+   so it works in China and offline. Karachi: Fajr 18°, Isha 18°; Hanafi Asr. */
+const CITY_TZ={'Pukou, Nanjing':'Asia/Shanghai','Lahore':'Asia/Karachi','Faisalabad':'Asia/Karachi','Islamabad':'Asia/Karachi','Karachi':'Asia/Karachi','Rawalpindi':'Asia/Karachi'};
+function tzOffsetHours(tz,date){
+  try{
+    const p=new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(date);
+    const g=t=>+p.find(x=>x.type===t).value;
+    const asUTC=Date.UTC(g('year'),g('month')-1,g('day'),g('hour')%24,g('minute'),g('second'));
+    return (asUTC-Math.floor(date.getTime()/1000)*1000)/3600000;
+  }catch{return -date.getTimezoneOffset()/60}
 }
-async function fetchToday(){const day=new Date().getDate();let data=getPTC();if(!data){data=await fetchMonth();setPTC(data);}return data[day-1]}
+function calcPrayerTimes(date,lat,lng,tzHours){
+  const rad=d=>d*Math.PI/180,deg=r=>r*180/Math.PI;
+  const fix=(a,b)=>{a=a-b*Math.floor(a/b);return a<0?a+b:a};
+  const dsin=d=>Math.sin(rad(d)),dcos=d=>Math.cos(rad(d)),dtan=d=>Math.tan(rad(d));
+  const darcsin=x=>deg(Math.asin(x)),darccos=x=>deg(Math.acos(x)),darctan2=(y,x)=>deg(Math.atan2(y,x)),darccot=x=>deg(Math.atan(1/x));
+  let y=date.getFullYear(),m=date.getMonth()+1;const d=date.getDate();
+  if(m<=2){y-=1;m+=12}
+  const A=Math.floor(y/100),B=2-A+Math.floor(A/4);
+  const jDate=Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5-lng/(15*24);
+  const sun=jd=>{
+    const D=jd-2451545,g=fix(357.529+0.98560028*D,360),q=fix(280.459+0.98564736*D,360);
+    const L=fix(q+1.915*dsin(g)+0.020*dsin(2*g),360),e=23.439-0.00000036*D;
+    const RA=darctan2(dcos(e)*dsin(L),dcos(L))/15;
+    return{decl:darcsin(dsin(e)*dsin(L)),eqt:q/15-fix(RA,24)};
+  };
+  const midDay=t=>fix(12-sun(jDate+t).eqt,24);
+  const angleTime=(angle,t,ccw)=>{
+    const decl=sun(jDate+t).decl,noon=midDay(t);
+    const T=darccos((-dsin(angle)-dsin(decl)*dsin(lat))/(dcos(decl)*dcos(lat)))/15;
+    return noon+(ccw?-T:T);
+  };
+  const asrTime=(factor,t)=>{const decl=sun(jDate+t).decl;return angleTime(-darccot(factor+dtan(Math.abs(lat-decl))),t)};
+  const t={
+    Fajr:angleTime(18,5/24,true),Sunrise:angleTime(0.833,6/24,true),
+    Dhuhr:midDay(12/24),Asr:asrTime(CFG.school===1?2:1,13/24),
+    Sunset:angleTime(0.833,18/24),Isha:angleTime(18,18/24),
+  };
+  // High-latitude safety (night-middle rule) if an angle never occurs
+  const night=24+t.Sunrise-t.Sunset;
+  if(isNaN(t.Fajr))t.Fajr=t.Sunrise-night/2;
+  if(isNaN(t.Isha))t.Isha=t.Sunset+night/2;
+  t.Maghrib=t.Sunset;
+  t.Midnight=t.Sunset+night/2;
+  const out={};
+  for(const k in t){
+    let h=fix(t[k]+tzHours-lng/15+1/120,24); // +30s → round to nearest minute
+    const hh=Math.floor(h),mm=Math.floor((h-hh)*60);
+    out[k]=`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+  }
+  return out;
+}
+function hijriFor(date){
+  for(const cal of['islamic-umalqura','islamic-civil','islamic']){
+    try{
+      const p=new Intl.DateTimeFormat('en-u-ca-'+cal,{day:'numeric',month:'long',year:'numeric'}).formatToParts(date);
+      const g=t=>(p.find(x=>x.type===t)||{}).value;
+      if(g('day')&&g('month')&&g('year'))return{day:g('day'),month:{en:g('month')},year:String(g('year')).replace(/\s*AH$/,'')};
+    }catch{}
+  }
+  return{day:'',month:{en:''},year:''};
+}
+async function fetchToday(){
+  const now=new Date();
+  const tz=CFG.gps?Intl.DateTimeFormat().resolvedOptions().timeZone:(CITY_TZ[CFG.city]||Intl.DateTimeFormat().resolvedOptions().timeZone);
+  return{timings:calcPrayerTimes(now,CFG.lat,CFG.lng,tzOffsetHours(tz,now)),date:{hijri:hijriFor(now)}};
+}
 
 /* ═══════════════════════════════════════
    TIME LOGIC

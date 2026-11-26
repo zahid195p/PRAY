@@ -1,5 +1,5 @@
 /* Salah service worker — offline app shell + notification clicks */
-const CACHE='salah-v2';
+const CACHE='salah-v3';
 const SHELL=['./','index.html','manifest.json','icon-180.png','icon-512.png'];
 
 self.addEventListener('install',e=>{
